@@ -111,13 +111,7 @@ namespace Komodex.NETMF
 
             Digit d1, d2, d3, d4;
 
-            d4 = GetDigit(value % 10);
-            value /= 10;
-            d3 = GetDigit(value % 10);
-            value /= 10;
-            d2 = GetDigit(value % 10);
-            value /= 10;
-            d1 = GetDigit(value % 10);
+            IntToDigits(value, out d1, out d2, out d3, out d4);
 
             if (!leadingZeros)
                 ClearLeadingZeros(ref d1, ref d2, ref d3, ref d4);
@@ -128,14 +122,67 @@ namespace Komodex.NETMF
             SetValue(d1, d2, d3, d4);
         }
 
-        public void SetValue(float value, int decimalPlaces)
+        public void SetValue(float value, int decimalPlaces, bool leadingZeros = false)
         {
-            if (value > 9999 || value < -999)
-                throw new ArgumentOutOfRangeException("value");
-
-            if (decimalPlaces > 4 || decimalPlaces < 0)
+            if (decimalPlaces > 3 || decimalPlaces < 0)
                 throw new ArgumentOutOfRangeException("decimalPlaces");
 
+            int intValue;
+
+            switch (decimalPlaces)
+            {
+                case 1:
+                    intValue = (int)(value * 10);
+                    break;
+                case 2:
+                    intValue = (int)(value * 100);
+                    break;
+                case 3:
+                    intValue = (int)(value * 1000);
+                    break;
+                default:
+                    intValue = (int)value;
+                    break;
+            }
+
+            if (intValue > 9999 || intValue < -999)
+                throw new ArgumentOutOfRangeException("value");
+
+            bool isNegative = (intValue < 0);
+            intValue = System.Math.Abs(intValue);
+
+            Digit d1, d2, d3, d4;
+
+            IntToDigits(intValue, out d1, out d2, out d3, out d4);
+
+            switch (decimalPlaces)
+            {
+                case 0:
+                    d4 |= Digit.Decimal;
+                    break;
+                case 1:
+                    d3 |= Digit.Decimal;
+                    break;
+                case 2:
+                    d2 |= Digit.Decimal;
+                    break;
+                case 3:
+                    d1 |= Digit.Decimal;
+                    break;
+            }
+
+            if (!leadingZeros)
+                ClearLeadingZeros(ref d1, ref d2, ref d3, ref d4);
+
+            if (isNegative)
+            {
+                if (d1 == (Digit.D0 | Digit.Decimal))
+                    d1 = Digit.Dash | Digit.Decimal;
+                else
+                    d1 = Digit.Dash;
+            }
+
+            SetValue(d1, d2, d3, d4);
         }
 
         public void SetValue(int d1, int d2, int d3, int d4)
@@ -288,6 +335,17 @@ namespace Komodex.NETMF
                 default:
                     throw new ArgumentOutOfRangeException("value");
             }
+        }
+
+        private void IntToDigits(int value, out Digit d1, out Digit d2, out Digit d3, out Digit d4)
+        {
+            d4 = GetDigit(value % 10);
+            value /= 10;
+            d3 = GetDigit(value % 10);
+            value /= 10;
+            d2 = GetDigit(value % 10);
+            value /= 10;
+            d1 = GetDigit(value % 10);
         }
 
         private void ClearLeadingZeros(ref Digit d1, ref Digit d2, ref Digit d3, ref Digit d4)

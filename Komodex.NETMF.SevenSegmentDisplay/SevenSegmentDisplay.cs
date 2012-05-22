@@ -101,19 +101,40 @@ namespace Komodex.NETMF
 
         #region Display Value Methods
 
-        public void SetValue(int value)
+        public void SetValue(int value, bool leadingZeros = false)
         {
             if (value > 9999 || value < -999)
                 throw new ArgumentOutOfRangeException("value");
 
+            bool isNegative = (value < 0);
+            value = System.Math.Abs(value);
 
+            Digit d1, d2, d3, d4;
+
+            d4 = GetDigit(value % 10);
+            value /= 10;
+            d3 = GetDigit(value % 10);
+            value /= 10;
+            d2 = GetDigit(value % 10);
+            value /= 10;
+            d1 = GetDigit(value % 10);
+
+            if (!leadingZeros)
+                ClearLeadingZeros(ref d1, ref d2, ref d3, ref d4);
+
+            if (isNegative)
+                d1 = Digit.Dash;
+
+            SetValue(d1, d2, d3, d4);
         }
 
-        public void SetValue(float value)
+        public void SetValue(float value, int decimalPlaces)
         {
             if (value > 9999 || value < -999)
                 throw new ArgumentOutOfRangeException("value");
 
+            if (decimalPlaces > 4 || decimalPlaces < 0)
+                throw new ArgumentOutOfRangeException("decimalPlaces");
 
         }
 
@@ -266,6 +287,22 @@ namespace Komodex.NETMF
                     return 9;
                 default:
                     throw new ArgumentOutOfRangeException("value");
+            }
+        }
+
+        private void ClearLeadingZeros(ref Digit d1, ref Digit d2, ref Digit d3, ref Digit d4)
+        {
+            if (d1 == Digit.D0)
+            {
+                d1 = Digit.None;
+                if (d2 == Digit.D0)
+                {
+                    d2 = Digit.None;
+                    if (d3 == Digit.D0)
+                    {
+                        d3 = Digit.None;
+                    }
+                }
             }
         }
 

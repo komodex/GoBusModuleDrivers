@@ -240,6 +240,27 @@ namespace Komodex.NETMF
                 throw new ArgumentOutOfRangeException("value");
 
             int brightness = (int)(value * 1023);
+
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _retryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_BRIGHTNESS;
+                _writeFrameBuffer[2] = (byte)(brightness >> 8);
+                _writeFrameBuffer[3] = (byte)(brightness >> 0);
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // TEMP
+                success = true;
+            }
         }
 
         private void GetBrightness()
@@ -253,7 +274,25 @@ namespace Komodex.NETMF
 
         public void SetColon(bool value)
         {
+            ClearSPIWriteFrameBuffer();
 
+            int retry = _retryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_COLON;
+                _writeFrameBuffer[2] = (value) ? (byte)1 : (byte)0;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // TEMP
+                success = true;
+            }
         }
 
         private void GetColon()
@@ -267,7 +306,25 @@ namespace Komodex.NETMF
 
         public void SetApostrophe(bool value)
         {
+            ClearSPIWriteFrameBuffer();
 
+            int retry = _retryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_APOSTROPHE;
+                _writeFrameBuffer[2] = (value) ? (byte)1 : (byte)0;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // TEMP
+                success = true;
+            }
         }
 
         private void GetApostrophe()

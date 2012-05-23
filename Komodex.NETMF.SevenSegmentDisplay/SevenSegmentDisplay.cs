@@ -306,14 +306,55 @@ namespace Komodex.NETMF
                 // Send the message
                 _spi.Write(_writeFrameBuffer);
 
-                // TEMP
-                success = true;
+                // Verify the data
+                int verifyBrightness;
+                if (GetBrightness(out verifyBrightness))
+                {
+                    if (brightness == verifyBrightness)
+                        success = true;
+                }
             }
         }
 
-        private void GetBrightness()
+        private bool GetBrightness(out int brightness)
         {
+            brightness = -1;
 
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_BRIGHTNESS;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_BRIGHTNESS))
+                    {
+                        brightness = (_readFrameBuffer[3] << 8);
+                        brightness |= _readFrameBuffer[4];
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
         }
 
         #endregion

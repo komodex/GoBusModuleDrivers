@@ -196,7 +196,7 @@ namespace Komodex.NETMF
             if (d4 < 0 || d4 > 9)
                 throw new ArgumentOutOfRangeException("d4");
 
-
+            SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
         }
 
         public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)

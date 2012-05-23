@@ -379,14 +379,58 @@ namespace Komodex.NETMF
                 // Send the message
                 _spi.Write(_writeFrameBuffer);
 
-                // TEMP
-                success = true;
+                // Verify the data
+                bool verifyColon;
+                if (GetColon(out verifyColon))
+                {
+                    if (value == verifyColon)
+                        success = true;
+                }
             }
         }
 
-        private void GetColon()
+        private bool GetColon(out bool value)
         {
+            value = false;
 
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_COLON;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_COLON))
+                    {
+                        if (_readFrameBuffer[3] == 0)
+                            value = false;
+                        else
+                            value = true;
+
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
         }
 
         #endregion
@@ -411,14 +455,58 @@ namespace Komodex.NETMF
                 // Send the message
                 _spi.Write(_writeFrameBuffer);
 
-                // TEMP
-                success = true;
+                // Verify the data
+                bool verifyApostrophe;
+                if (GetApostrophe(out verifyApostrophe))
+                {
+                    if (value == verifyApostrophe)
+                        success = true;
+                }
             }
         }
 
-        private void GetApostrophe()
+        private bool GetApostrophe(out bool value)
         {
+            value = false;
 
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_APOSTROPHE;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_APOSTROPHE))
+                    {
+                        if (_readFrameBuffer[3] == 0)
+                            value = false;
+                        else
+                            value = true;
+
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
         }
 
         #endregion

@@ -334,6 +334,81 @@ namespace Komodex.NETMF
 
         #endregion
 
+        #region Time Display
+
+        public void SetTimeDisplay(TimeSpan time, TimeDisplayMode mode = TimeDisplayMode.HourMinute, bool colon = true)
+        {
+            bool leadingZeros = false;
+            switch (mode)
+            {
+                case TimeDisplayMode.HourMinute:
+                case TimeDisplayMode.MinuteSecond:
+                case TimeDisplayMode.Clock24h:
+                    leadingZeros = true;
+                    break;
+            }
+
+            // Get the value
+            int value = 0;
+            bool is_pm = false;
+            switch (mode)
+            {
+                case TimeDisplayMode.MinuteSecond:
+                    value = time.Minutes * 100 + time.Seconds;
+                    break;
+                case TimeDisplayMode.HourMinute:
+                case TimeDisplayMode.Clock24h:
+                    value = time.Hours * 100 + time.Minutes;
+                    break;
+                case TimeDisplayMode.Clock12h:
+                case TimeDisplayMode.Clock12hAMApostrophe:
+                case TimeDisplayMode.Clock12hPMApostrophe:
+                case TimeDisplayMode.Clock12hAMDecimalPoint:
+                case TimeDisplayMode.Clock12hPMDecimalPoint:
+                    if (time.Hours == 0)
+                        value = 1200;
+                    else if (time.Hours < 12)
+                        value = time.Hours * 100;
+                    else
+                    {
+                        value = (time.Hours - 12) * 100;
+                        is_pm = true;
+                    }
+                    value += time.Minutes;
+                    break;
+            }
+
+            bool apostrophe = false;
+            bool decimalPoint = false;
+
+            switch (mode)
+            {
+                case TimeDisplayMode.Clock12hAMApostrophe:
+                    apostrophe = !is_pm;
+                    break;
+                case TimeDisplayMode.Clock12hPMApostrophe:
+                    apostrophe = is_pm;
+                    break;
+                case TimeDisplayMode.Clock12hAMDecimalPoint:
+                    decimalPoint = !is_pm;
+                    break;
+                case TimeDisplayMode.Clock12hPMDecimalPoint:
+                    decimalPoint = is_pm;
+                    break;
+            }
+
+            // Set the display value
+            if (decimalPoint)
+                SetValue((float)value, 0, leadingZeros);
+            else
+                SetValue(value, leadingZeros);
+
+            SetApostrophe(apostrophe);
+            SetColon(colon);
+        }
+
+        #endregion
+
         #region Utility Methods
 
         public static Digit GetDigit(int value)

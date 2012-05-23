@@ -12,7 +12,8 @@ namespace Komodex.NETMF
         // Module parameters
         protected readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0x3E, 0x42, 0x53, 0xAC, 0x60, 0x1C, 0x4B, 0x89, 0x83, 0xE7, 0x75, 0xD9, 0x65, 0x3E, 0xE0 });
         private const int _frameLength = 18;
-        private const int _retryCount = 36;
+        private const int _writeRetryCount = 36;
+        private const int _readRetryCount = 4;
 
         // SPI interface
         private SPI _spi;
@@ -203,7 +204,7 @@ namespace Komodex.NETMF
         {
             ClearSPIWriteFrameBuffer();
 
-            int retry = _retryCount;
+            int retry = _writeRetryCount;
             bool success = false;
 
             while (!success && (retry-- > 0))
@@ -220,14 +221,61 @@ namespace Komodex.NETMF
                 // Send the message
                 _spi.Write(_writeFrameBuffer);
 
-                // TEMP
-                success = true;
+                // Verify the data
+                Digit verifyD1, verifyD2, verifyD3, verifyD4;
+                if (GetValue(out verifyD1, out verifyD2, out verifyD3, out verifyD4))
+                {
+                    if (d1 == verifyD1 && d2 == verifyD2 && d3 == verifyD3 && d4 == verifyD4)
+                        success = true;
+                }
+
             }
         }
 
-        private void GetValue()
+        private bool GetValue(out Digit d1, out Digit d2, out Digit d3, out Digit d4)
         {
+            d1 = (Digit)(-1);
+            d2 = (Digit)(-1);
+            d3 = (Digit)(-1);
+            d4 = (Digit)(-1);
 
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_DISPLAYVALUE;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_DISPLAYVALUE))
+                    {
+                        d1 = (Digit)_readFrameBuffer[3];
+                        d2 = (Digit)_readFrameBuffer[4];
+                        d3 = (Digit)_readFrameBuffer[5];
+                        d4 = (Digit)_readFrameBuffer[6];
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
         }
 
         #endregion
@@ -243,7 +291,7 @@ namespace Komodex.NETMF
 
             ClearSPIWriteFrameBuffer();
 
-            int retry = _retryCount;
+            int retry = _writeRetryCount;
             bool success = false;
 
             while (!success && (retry-- > 0))
@@ -276,7 +324,7 @@ namespace Komodex.NETMF
         {
             ClearSPIWriteFrameBuffer();
 
-            int retry = _retryCount;
+            int retry = _writeRetryCount;
             bool success = false;
 
             while (!success && (retry-- > 0))
@@ -308,7 +356,7 @@ namespace Komodex.NETMF
         {
             ClearSPIWriteFrameBuffer();
 
-            int retry = _retryCount;
+            int retry = _writeRetryCount;
             bool success = false;
 
             while (!success && (retry-- > 0))

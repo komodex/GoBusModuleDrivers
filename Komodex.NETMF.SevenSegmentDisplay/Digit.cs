@@ -5,7 +5,7 @@ namespace Komodex.NETMF
 {
     public enum Digit
     {
-        None = 0x00,
+        Blank = 0x00,
         D0 = 0x3F,
         D1 = 0x06,
         D2 = 0x5B,

@@ -188,13 +188,13 @@ namespace Komodex.NETMF
 
         public void SetValue(int d1, int d2, int d3, int d4)
         {
-            if (d1 < 0 || d1 > 9)
+            if (d1 < -1 || d1 > 9)
                 throw new ArgumentOutOfRangeException("d1");
-            if (d2 < 0 || d2 > 9)
+            if (d2 < -1 || d2 > 9)
                 throw new ArgumentOutOfRangeException("d2");
-            if (d3 < 0 || d3 > 9)
+            if (d3 < -1 || d3 > 9)
                 throw new ArgumentOutOfRangeException("d3");
-            if (d4 < 0 || d4 > 9)
+            if (d4 < -1 || d4 > 9)
                 throw new ArgumentOutOfRangeException("d4");
 
             SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
@@ -592,6 +592,8 @@ namespace Komodex.NETMF
         {
             switch (value)
             {
+                case -1:
+                    return Digit.Blank;
                 case 0:
                     return Digit.D0;
                 case 1:
@@ -661,13 +663,13 @@ namespace Komodex.NETMF
         {
             if (d1 == Digit.D0)
             {
-                d1 = Digit.None;
+                d1 = Digit.Blank;
                 if (d2 == Digit.D0)
                 {
-                    d2 = Digit.None;
+                    d2 = Digit.Blank;
                     if (d3 == Digit.D0)
                     {
-                        d3 = Digit.None;
+                        d3 = Digit.Blank;
                     }
                 }
             }

@@ -53,8 +53,8 @@
   !define UninstallerFilename "${FullProductName} Uninstall.exe"
 
   ;Custom installer/uninstaller icons (optional)
-  ;!define MUI_ICON "Icons\XPUI-install.ico"
-  ;!define MUI_UNICON "Icons\XPUI-uninstall.ico"
+  !define MUI_ICON "Icons\XPUI-install.ico"
+  !define MUI_UNICON "Icons\XPUI-uninstall.ico"
   
   ;Link shown on the installer's Finish page (optional)
   ;!define MUI_FINISHPAGE_LINK "Getting Started with ${FullProductName}"

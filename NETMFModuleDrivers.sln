@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Komodex.NETMF.SevenSegmentD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Drivers", "Drivers", "{6018DC36-534D-4C4B-9BB1-B4EC16A0B563}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Komodex.NETMF.CharacterLCD", "Komodex.NETMF.CharacterLCD\Komodex.NETMF.CharacterLCD.csproj", "{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{2DA138D3-D0E3-4184-AED2-31123A37B689}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DA138D3-D0E3-4184-AED2-31123A37B689}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DA138D3-D0E3-4184-AED2-31123A37B689}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2DA138D3-D0E3-4184-AED2-31123A37B689} = {6018DC36-534D-4C4B-9BB1-B4EC16A0B563}
+		{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9} = {6018DC36-534D-4C4B-9BB1-B4EC16A0B563}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .

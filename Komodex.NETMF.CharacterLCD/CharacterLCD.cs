@@ -99,7 +99,7 @@ namespace Komodex.NETMF
 
         #endregion
 
-        #region Display Value Methods
+        #region Display Line 1 Methods
 
         public void SetLine1(string value)
         {
@@ -167,6 +167,87 @@ namespace Komodex.NETMF
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_LINE1))
+                    {
+                        char[] readChars = Encoding.UTF8.GetChars(_readFrameBuffer, 3, 16);
+                        value = new string(readChars);
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        #endregion
+
+        #region Display Line 2 Methods
+
+        public void SetLine2(string value)
+        {
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _writeRetryCount;
+            bool success = false;
+
+            // Add spaces and truncate
+            value += new string(' ', 16);
+            value = value.Substring(0, 16);
+            // Get bytes
+            byte[] lineBytes = Encoding.UTF8.GetBytes(value);
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_LINE2;
+                for (int i = 0; i < lineBytes.Length; i++)
+                    _writeFrameBuffer[i + 2] = lineBytes[i];
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Verify the data
+                string verifyLine;
+                if (GetLine2(out verifyLine))
+                {
+                    if (value == verifyLine)
+                        success = true;
+                }
+
+            }
+        }
+
+        private bool GetLine2(out string value)
+        {
+            value = null;
+
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_LINE2;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_LINE2))
                     {
                         char[] readChars = Encoding.UTF8.GetChars(_readFrameBuffer, 3, 16);
                         value = new string(readChars);

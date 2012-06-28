@@ -47,6 +47,10 @@
     <Reference Include="GoBus" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Komodex.NETMF.CharacterLCD\Komodex.NETMF.CharacterLCD.csproj">
+      <Project>{75D83F6C-89C5-43EC-B6A4-DE6A41A720F9}</Project>
+      <Name>Komodex.NETMF.CharacterLCD</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Komodex.NETMF.SevenSegmentDisplay\Komodex.NETMF.SevenSegmentDisplay.csproj">
       <Project>{2DA138D3-D0E3-4184-AED2-31123A37B689}</Project>
       <Name>Komodex.NETMF.SevenSegmentDisplay</Name>

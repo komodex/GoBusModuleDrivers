@@ -32,8 +32,9 @@ namespace Komodex.NETMF
         private const byte CMD_READ = (0 << 7);
         private const byte CMD_WRITE = (1 << 7);
 
-        private const byte CMD_LINE1 = 0x01;
-        private const byte CMD_LINE2 = 0x02;
+        private const byte CMD_COLOR = 0x01;
+        private const byte CMD_LINE1 = 0x11;
+        private const byte CMD_LINE2 = 0x12;
 
         #region Constructors and Initialization
 
@@ -95,6 +96,85 @@ namespace Komodex.NETMF
         private void CalculateCRC()
         {
             _writeFrameBuffer[_writeFrameBuffer.Length - 1] = CRC8.Compute8(_writeFrameBuffer, 0, _writeFrameBuffer.Length - 1);
+        }
+
+        #endregion
+
+        #region Color Methods
+
+        public void SetColor(byte red, byte green, byte blue)
+        {
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _writeRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_COLOR;
+                _writeFrameBuffer[2] = red;
+                _writeFrameBuffer[3] = green;
+                _writeFrameBuffer[4] = blue;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Verify the data
+                byte verifyRed, verifyGreen, verifyBlue;
+                if (GetColor(out verifyRed, out verifyGreen, out verifyBlue))
+                {
+                    if (red == verifyRed && green == verifyGreen && blue == verifyBlue)
+                        success = true;
+                }
+
+            }
+        }
+
+        private bool GetColor(out byte red, out byte green, out byte blue)
+        {
+            red = 0;
+            green = 0;
+            blue = 0;
+
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_COLOR;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_COLOR))
+                    {
+                        red = _readFrameBuffer[3];
+                        green = _readFrameBuffer[4];
+                        blue = _readFrameBuffer[5];
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
         }
 
         #endregion

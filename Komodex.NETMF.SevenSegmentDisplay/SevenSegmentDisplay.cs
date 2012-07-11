@@ -200,6 +200,37 @@ namespace Komodex.NETMF
             SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
         }
 
+        public void SetValue(string value)
+        {
+            char[] charValue = value.ToCharArray();
+
+            Digit[] digits = new Digit[4];
+            int pos = 0;
+            Digit d;
+
+            for (int i = 0; i < charValue.Length; i++)
+            {
+                d = GetDigit(charValue[i]);
+                if (d == Digit.Decimal)
+                {
+                    // If we're not on the first digit and the previous digit doesn't already have a decimal point, rewind the position by 1
+                    if (pos > 0 && (digits[pos - 1] & Digit.Decimal) == 0)
+                        pos--;
+                }
+
+                // If we have too many digits, break
+                if (pos >= digits.Length)
+                    break;
+
+                // Using an OR assign here in case we are adding a decimal point
+                digits[pos] |= d;
+
+                pos++;
+            }
+
+            SetValue(digits[0], digits[1], digits[2], digits[3]);
+        }
+
         public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
         {
             ClearSPIWriteFrameBuffer();
@@ -617,6 +648,51 @@ namespace Komodex.NETMF
                 default:
                     throw new ArgumentOutOfRangeException("value");
             }
+        }
+
+        public static Digit GetDigit(char value)
+        {
+            value = value.ToUpper();
+
+            switch (value)
+            {
+                case '0':
+                    return Digit.D0;
+                case '1':
+                    return Digit.D1;
+                case '2':
+                    return Digit.D2;
+                case '3':
+                    return Digit.D3;
+                case '4':
+                    return Digit.D4;
+                case '5':
+                    return Digit.D5;
+                case '6':
+                    return Digit.D6;
+                case '7':
+                    return Digit.D7;
+                case '8':
+                    return Digit.D8;
+                case 'A':
+                    return Digit.A;
+                case 'B':
+                    return Digit.B;
+                case 'C':
+                    return Digit.C;
+                case 'D':
+                    return Digit.D;
+                case 'E':
+                    return Digit.E;
+                case 'F':
+                    return Digit.F;
+                case '-':
+                    return Digit.Dash;
+                case '.':
+                    return Digit.Decimal;
+            }
+
+            return Digit.Blank;
         }
 
         public static int GetInt(Digit value)

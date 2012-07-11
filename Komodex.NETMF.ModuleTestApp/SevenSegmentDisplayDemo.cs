@@ -214,6 +214,20 @@ namespace Komodex.NETMF.ModuleTestApp
                 _display.SetColon(false);
                 _display.SetApostrophe(false);
                 _goToNextDemo = false;
+
+                // Temperature demo
+                Debug.Print("Temperature display");
+                float temperature = 75;
+                while (!_goToNextDemo)
+                {
+                    _display.SetTemperatureDisplay(temperature, Digit.F);
+                    temperature += 0.1f;
+                    if (temperature > 150)
+                        temperature = 75;
+                }
+                _display.SetColon(false);
+                _display.SetApostrophe(false);
+                _goToNextDemo = false;
             }
         }
 

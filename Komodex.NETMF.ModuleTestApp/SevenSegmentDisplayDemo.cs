@@ -193,26 +193,26 @@ namespace Komodex.NETMF.ModuleTestApp
 
                 // Clock demo
                 Debug.Print("Clock display");
+                _display.SetColon(true);
                 while (!_goToNextDemo)
                 {
-                    _display.SetTimeDisplay(DateTime.Now.TimeOfDay, TimeDisplayMode.Clock12hAMApostrophe);
+                    _display.SetValue(DateTime.Now);
                     Thread.Sleep(100);
                 }
                 _display.SetColon(false);
-                _display.SetApostrophe(false);
                 _goToNextDemo = false;
 
                 // Stopwatch demo
                 Debug.Print("Stopwatch display");
+                _display.SetColon(true);
                 TimeSpan timeSpan = new TimeSpan();
                 while (!_goToNextDemo)
                 {
-                    _display.SetTimeDisplay(timeSpan, TimeDisplayMode.MinuteSecond);
+                    _display.SetValue(timeSpan);
                     timeSpan = new TimeSpan(0, timeSpan.Minutes, timeSpan.Seconds+1);
                     Thread.Sleep(10);
                 }
                 _display.SetColon(false);
-                _display.SetApostrophe(false);
                 _goToNextDemo = false;
 
                 // Temperature demo

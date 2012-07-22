@@ -100,7 +100,7 @@ namespace Komodex.NETMF
 
         #endregion
 
-        #region Display Value Methods
+        #region SetValue Methods
 
         public void SetValue(int value, bool leadingZeros = false)
         {
@@ -229,6 +229,73 @@ namespace Komodex.NETMF
             }
 
             SetValue(digits[0], digits[1], digits[2], digits[3]);
+        }
+
+        public void SetValue(DateTime value, bool show12HourTime = true, bool showPMIndicator = true)
+        {
+            int displayValue = 0;
+            bool is_pm = false;
+
+            // Get the hour value
+            if (show12HourTime)
+            {
+                if (value.Hour == 0)
+                    displayValue = 1200;
+                else if (value.Hour < 12)
+                    displayValue = value.Hour * 100;
+                else
+                {
+                    displayValue = (value.Hour - 12) * 100;
+                    is_pm = true;
+                }
+            }
+            else
+            {
+                displayValue = value.Hour * 100;
+            }
+
+            // Add the minutes
+            displayValue += value.Minute;
+
+            // Get the display digits
+            Digit d1, d2, d3, d4;
+            IntToDigits(displayValue, out d1, out d2, out d3, out d4);
+
+            // If we're showing 12 hour time and the first digit is a zero, hide it
+            if (show12HourTime && d1 == Digit.D0)
+                d1 = Digit.Blank;
+
+            // Add the decimal point PM indicator
+            if (is_pm && showPMIndicator)
+                d4 |= Digit.Decimal;
+
+            // Send the value to the display
+            SetValue(d1, d2, d3, d4);
+        }
+
+        public void SetValue(TimeSpan value, TimeSpanDisplayMode mode = TimeSpanDisplayMode.Automatic)
+        {
+            int displayValue = 0;
+
+            if (mode == TimeSpanDisplayMode.Automatic)
+            {
+                if (value.Hours > 0)
+                    mode = TimeSpanDisplayMode.HourMinute;
+                else
+                    mode = TimeSpanDisplayMode.MinuteSecond;
+            }
+
+            switch (mode)
+            {
+                case TimeSpanDisplayMode.HourMinute:
+                    displayValue = (value.Hours * 100) + value.Minutes;
+                    break;
+                case TimeSpanDisplayMode.MinuteSecond:
+                    displayValue = (value.Minutes * 100) + value.Seconds;
+                    break;
+            }
+
+            SetValue(displayValue, true);
         }
 
         public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
@@ -542,81 +609,6 @@ namespace Komodex.NETMF
 
         #endregion
 
-        #region Time Display
-
-        public void SetTimeDisplay(TimeSpan time, TimeDisplayMode mode = TimeDisplayMode.HourMinute, bool colon = true)
-        {
-            bool leadingZeros = false;
-            switch (mode)
-            {
-                case TimeDisplayMode.HourMinute:
-                case TimeDisplayMode.MinuteSecond:
-                case TimeDisplayMode.Clock24h:
-                    leadingZeros = true;
-                    break;
-            }
-
-            // Get the value
-            int value = 0;
-            bool is_pm = false;
-            switch (mode)
-            {
-                case TimeDisplayMode.MinuteSecond:
-                    value = time.Minutes * 100 + time.Seconds;
-                    break;
-                case TimeDisplayMode.HourMinute:
-                case TimeDisplayMode.Clock24h:
-                    value = time.Hours * 100 + time.Minutes;
-                    break;
-                case TimeDisplayMode.Clock12h:
-                case TimeDisplayMode.Clock12hAMApostrophe:
-                case TimeDisplayMode.Clock12hPMApostrophe:
-                case TimeDisplayMode.Clock12hAMDecimalPoint:
-                case TimeDisplayMode.Clock12hPMDecimalPoint:
-                    if (time.Hours == 0)
-                        value = 1200;
-                    else if (time.Hours < 12)
-                        value = time.Hours * 100;
-                    else
-                    {
-                        value = (time.Hours - 12) * 100;
-                        is_pm = true;
-                    }
-                    value += time.Minutes;
-                    break;
-            }
-
-            bool apostrophe = false;
-            bool decimalPoint = false;
-
-            switch (mode)
-            {
-                case TimeDisplayMode.Clock12hAMApostrophe:
-                    apostrophe = !is_pm;
-                    break;
-                case TimeDisplayMode.Clock12hPMApostrophe:
-                    apostrophe = is_pm;
-                    break;
-                case TimeDisplayMode.Clock12hAMDecimalPoint:
-                    decimalPoint = !is_pm;
-                    break;
-                case TimeDisplayMode.Clock12hPMDecimalPoint:
-                    decimalPoint = is_pm;
-                    break;
-            }
-
-            // Set the display value
-            if (decimalPoint)
-                SetValue((float)value, 0, leadingZeros);
-            else
-                SetValue(value, leadingZeros);
-
-            SetApostrophe(apostrophe);
-            SetColon(colon);
-        }
-
-        #endregion
-
         #region Temperature Display
 
         public void SetTemperatureDisplay(float temperature, Digit unit, bool showDecimal = true)
@@ -761,7 +753,7 @@ namespace Komodex.NETMF
             }
         }
 
-        private void IntToDigits(int value, out Digit d1, out Digit d2, out Digit d3, out Digit d4)
+        protected static void IntToDigits(int value, out Digit d1, out Digit d2, out Digit d3, out Digit d4)
         {
             d4 = GetDigit(value % 10);
             value /= 10;
@@ -772,7 +764,7 @@ namespace Komodex.NETMF
             d1 = GetDigit(value % 10);
         }
 
-        private void ClearLeadingZeros(ref Digit d1, ref Digit d2, ref Digit d3, ref Digit d4)
+        protected static void ClearLeadingZeros(ref Digit d1, ref Digit d2, ref Digit d3, ref Digit d4)
         {
             if (d1 == Digit.D0)
             {

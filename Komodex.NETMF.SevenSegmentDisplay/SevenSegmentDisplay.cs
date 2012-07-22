@@ -609,43 +609,6 @@ namespace Komodex.NETMF
 
         #endregion
 
-        #region Temperature Display
-
-        public void SetTemperatureDisplay(float temperature, Digit unit, bool showDecimal = true)
-        {
-            if (temperature > 999 || temperature < -99)
-                throw new ArgumentOutOfRangeException("temperature");
-
-            bool isNegative = (temperature < 0);
-            bool isDecimal = false;
-            if (showDecimal && temperature > -10 && temperature < 100)
-            {
-                temperature *= 10;
-                isDecimal = true;
-            }
-
-            int value = System.Math.Abs((int)temperature);
-
-            Digit dX, d1, d2, d3; // Discarding dX
-            IntToDigits(value, out dX, out d1, out d2, out d3);
-            dX = Digit.D0;
-
-            if (isDecimal)
-                d2 |= Digit.Decimal;
-
-            ClearLeadingZeros(ref dX, ref d1, ref d2, ref d3);
-
-            if (isNegative)
-                SetValue(Digit.Dash, d2, d3, unit);
-            else
-                SetValue(d1, d2, d3, unit);
-
-            SetApostrophe(true);
-            SetColon(false);
-        }
-
-        #endregion
-
         #region Utility Methods
 
         public static Digit GetDigit(int value)

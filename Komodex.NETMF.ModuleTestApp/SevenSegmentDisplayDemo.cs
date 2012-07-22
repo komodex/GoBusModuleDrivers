@@ -60,12 +60,13 @@ namespace Komodex.NETMF.ModuleTestApp
             if (_statusLed != null)
                 _statusLed.SetColor(0, 25, 0);
             Debug.Print("Starting demos...");
+            Debug.Print("Press the button on the Netduino Go mainboard to cycle between demos.");
 
             // Begin the demos
             while (true)
             {
                 // Counting demo
-                Debug.Print("Counting 0 to 9999");
+                Debug.Print("Demo: Counting 0 to 9999");
                 while (!_goToNextDemo)
                 {
                     // Count up
@@ -78,7 +79,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Reverse counting (negative numbers) demo
-                Debug.Print("Negative numbers 0 to -999");
+                Debug.Print("Demo: Negative numbers 0 to -999");
                 while (!_goToNextDemo)
                 {
                     // Count down
@@ -91,7 +92,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Floating point demo
-                Debug.Print("Floating point numbers with two decimal places from -9.99 to 9.99");
+                Debug.Print("Demo: Floating point numbers with two decimal places from -9.99 to 9.99");
                 while (!_goToNextDemo)
                 {
                     // Count up
@@ -104,7 +105,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Brightness demo
-                Debug.Print("Display brightness");
+                Debug.Print("Demo: Display brightness");
                 while (!_goToNextDemo)
                 {
                     float brightness = 1;
@@ -140,7 +141,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Custom character demo
-                Debug.Print("Custom characters");
+                Debug.Print("Demo: Custom characters");
                 int delayTime = 50;
                 Digit xx = (Digit)0x00; // Nothing
                 Digit tt = (Digit)0x01; // Top
@@ -192,7 +193,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Clock demo
-                Debug.Print("Clock display");
+                Debug.Print("Demo: Clock display");
                 _display.SetColon(true);
                 while (!_goToNextDemo)
                 {
@@ -203,7 +204,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Stopwatch demo
-                Debug.Print("Stopwatch display");
+                Debug.Print("Demo: Stopwatch display");
                 _display.SetColon(true);
                 TimeSpan timeSpan = new TimeSpan();
                 while (!_goToNextDemo)
@@ -216,7 +217,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 _goToNextDemo = false;
 
                 // Temperature demo
-                Debug.Print("Temperature display");
+                Debug.Print("Demo: Temperature display");
                 float temperature = 75;
                 while (!_goToNextDemo)
                 {

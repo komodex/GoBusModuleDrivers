@@ -80,6 +80,23 @@ namespace Komodex.NETMF
 
         #endregion
 
+        #region Resource Management
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Clean up any managed code objects
+                _irqPort.Dispose();
+            }
+            // Clean up any unmanaged code objects
+
+            // Dispose of our base object
+            base.Dispose(disposing);
+        }
+
+        #endregion
+
         #region IRQ Port
 
         private void _irqPort_OnInterrupt(uint data1, uint data2, DateTime time)

@@ -1,11 +1,15 @@
 using System;
 using Microsoft.SPOT;
 
+// Seven Segment Display Utilities
+// Matt Isenhower, Komodex Systems LLC
+// http://komodex.com
+// 
+// This class contains some sample code for use with the Seven Segment Display Module.
+// Feel free to modify this code or include it in your own programs.
+
 namespace Komodex.NETMF
 {
-    // This class contains some sample code for use with the Seven Segment Display Module.
-    // Feel free to modify this code or include it in your own programs.
-
     public static class SevenSegmentDisplayUtilities
     {
         #region Temperature Display

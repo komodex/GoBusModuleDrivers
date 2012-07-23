@@ -5,6 +5,10 @@ using System.Threading;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoGo;
 
+// Seven Segment Display Module Demos
+// Matt Isenhower, Komodex Systems LLC
+// http://komodex.com
+
 namespace Komodex.NETMF.ModuleTestApp
 {
     public static class SevenSegmentDisplayDemo

@@ -5,6 +5,10 @@ using Microsoft.SPOT.Hardware;
 using System.Threading;
 using Komodex.NETMF.Common;
 
+// Seven Segment Display Module Driver
+// Matt Isenhower, Komodex Systems LLC
+// http://komodex.com
+
 namespace Komodex.NETMF
 {
     public class SevenSegmentDisplay : GoModule

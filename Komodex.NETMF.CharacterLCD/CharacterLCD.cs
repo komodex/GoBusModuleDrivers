@@ -6,6 +6,10 @@ using System.Threading;
 using Komodex.NETMF.Common;
 using System.Text;
 
+// Character LCD Module Driver
+// Matt Isenhower, Komodex Systems LLC
+// http://komodex.com
+
 namespace Komodex.NETMF
 {
     public class CharacterLCD : GoModule

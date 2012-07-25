@@ -22,7 +22,7 @@
   !define FullProductName "${ShortCompanyName} ${ProductName}"
   
   ;Version number must be in X.X.X.X format
-  !define Version "0.1.0.0"
+  !define Version "1.0.0.0"
 
 ;--------------------------------
 ; EULA (Optional)
@@ -57,8 +57,8 @@
   !define MUI_UNICON "Icons\XPUI-uninstall.ico"
   
   ;Link shown on the installer's Finish page (optional)
-  ;!define MUI_FINISHPAGE_LINK "Getting Started with ${FullProductName}"
-  ;!define MUI_FINISHPAGE_LINK_LOCATION "http://example.com/help"
+  !define MUI_FINISHPAGE_LINK "Getting Started with ${FullProductName}"
+  !define MUI_FINISHPAGE_LINK_LOCATION "http://komodex.com/labs/gettingstarted"
 
 ;--------------------------------
 ; Installation Directory and Registry Keys

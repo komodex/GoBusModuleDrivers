@@ -687,6 +687,8 @@ namespace Komodex.NETMF
                     return Digit.D7;
                 case '8':
                     return Digit.D8;
+                case '9':
+                    return Digit.D9;
                 case 'A':
                     return Digit.A;
                 case 'B':

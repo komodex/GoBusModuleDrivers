@@ -14,7 +14,7 @@ namespace Komodex.NETMF
     {
         #region Temperature Display
 
-        public static void SetTemperatureDisplay(this SevenSegmentDisplay display, float temperature, Digit unit, bool showDecimal = true)
+        public static void SetTemperatureDisplay(this SevenSegmentDisplay display, double temperature, Digit unit, bool showDecimal = true)
         {
             // Check input
             if (temperature > 999 || temperature < -99)

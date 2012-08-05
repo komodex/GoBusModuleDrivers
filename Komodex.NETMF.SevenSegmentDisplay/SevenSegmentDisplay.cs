@@ -144,7 +144,7 @@ namespace Komodex.NETMF
             SetValue(d1, d2, d3, d4);
         }
 
-        public void SetValue(float value, int decimalPlaces, bool leadingZeros = false)
+        public void SetValue(double value, int decimalPlaces, bool leadingZeros = false)
         {
             if (decimalPlaces > 3 || decimalPlaces < 0)
                 throw new ArgumentOutOfRangeException("decimalPlaces");
@@ -401,7 +401,7 @@ namespace Komodex.NETMF
 
         #region Display Brightness Methods
 
-        public void SetBrightness(float value)
+        public void SetBrightness(double value)
         {
             if (value < 0 || value > 1)
                 throw new ArgumentOutOfRangeException("value");

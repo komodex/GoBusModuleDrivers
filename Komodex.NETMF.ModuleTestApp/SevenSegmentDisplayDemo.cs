@@ -95,15 +95,15 @@ namespace Komodex.NETMF.ModuleTestApp
                 }
                 _goToNextDemo = false;
 
-                // Floating point demo
-                Debug.Print("Demo: Floating point numbers with two decimal places from -9.99 to 9.99");
+                // Double demo
+                Debug.Print("Demo: Doubles with two decimal places from -9.99 to 9.99");
                 while (!_goToNextDemo)
                 {
                     // Count up
-                    for (float i = -9.99f; i <= 9.99f && !_goToNextDemo; i += 0.01f)
+                    for (double i = -9.99; i <= 9.99 && !_goToNextDemo; i += 0.01)
                         _display.SetValue(i, 2);
                     // Count down
-                    for (float i = 9.99f; i >= -9.99f && !_goToNextDemo; i -= 0.01f)
+                    for (double i = 9.99; i >= -9.99 && !_goToNextDemo; i -= 0.01)
                         _display.SetValue(i, 2);
                 }
                 _goToNextDemo = false;
@@ -112,7 +112,7 @@ namespace Komodex.NETMF.ModuleTestApp
                 Debug.Print("Demo: Display brightness");
                 while (!_goToNextDemo)
                 {
-                    float brightness = 1;
+                    double brightness = 1;
 
                     if (_potentiometer != null)
                     {
@@ -130,14 +130,14 @@ namespace Komodex.NETMF.ModuleTestApp
                         {
                             _display.SetBrightness(brightness);
                             _display.SetValue(brightness, 3);
-                            brightness -= 0.005f;
+                            brightness -= 0.005;
                         }
                         brightness = 0;
                         while (brightness < 1 && !_goToNextDemo)
                         {
                             _display.SetBrightness(brightness);
                             _display.SetValue(brightness, 3);
-                            brightness += 0.005f;
+                            brightness += 0.005;
                         }
                     }
                 }
@@ -222,11 +222,11 @@ namespace Komodex.NETMF.ModuleTestApp
 
                 // Temperature demo
                 Debug.Print("Demo: Temperature display");
-                float temperature = 75;
+                double temperature = 75;
                 while (!_goToNextDemo)
                 {
                     _display.SetTemperatureDisplay(temperature, Digit.F);
-                    temperature += 0.1f;
+                    temperature += 0.1;
                     if (temperature > 150)
                         temperature = 75;
                 }

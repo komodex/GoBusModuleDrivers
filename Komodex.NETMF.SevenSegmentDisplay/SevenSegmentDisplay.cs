@@ -319,6 +319,11 @@ namespace Komodex.NETMF
             SetValue(displayValue, true);
         }
 
+        public void ClearValue()
+        {
+            SetValue(Digit.Blank, Digit.Blank, Digit.Blank, Digit.Blank);
+        }
+
         public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
         {
             ClearSPIWriteFrameBuffer();

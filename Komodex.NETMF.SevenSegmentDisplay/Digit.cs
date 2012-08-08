@@ -28,5 +28,6 @@ namespace Komodex.NETMF
         F = 0x71,
         Decimal = 0x80,
         Dash = 0x40,
+        Underscore = 0x08,
     }
 }

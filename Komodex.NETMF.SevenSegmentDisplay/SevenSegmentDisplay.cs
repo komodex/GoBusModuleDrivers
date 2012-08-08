@@ -705,6 +705,8 @@ namespace Komodex.NETMF
                     return Digit.Dash;
                 case '.':
                     return Digit.Decimal;
+                case '_':
+                    return Digit.Underscore;
             }
 
             return Digit.Blank;

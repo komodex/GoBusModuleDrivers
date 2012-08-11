@@ -40,6 +40,12 @@ namespace Komodex.NETMF
         private const byte CMD_LINE1 = 0x11;
         private const byte CMD_LINE2 = 0x12;
 
+        // Brightness and color
+        private byte _red = 255;
+        private byte _green = 255;
+        private byte _blue = 255;
+        private double _brightness = 1.0;
+
         #region Constructors and Initialization
 
         public CharacterLCD()
@@ -104,10 +110,31 @@ namespace Komodex.NETMF
 
         #endregion
 
-        #region Color Methods
+        #region Brightness/Color Methods
+
+        public void SetBrightness (double value)
+        {
+            _brightness = value;
+
+            UpdateColor();
+        }
 
         public void SetColor(byte red, byte green, byte blue)
         {
+            _red = red;
+            _green = green;
+            _blue = blue;
+
+            UpdateColor();
+        }
+
+        private void UpdateColor()
+        {
+            // Get actual brightness levels for each color
+            byte red = (byte)((double)_red * _brightness);
+            byte green = (byte)((double)_green * _brightness);
+            byte blue = (byte)((double)_blue * _brightness);
+
             ClearSPIWriteFrameBuffer();
 
             int retry = _writeRetryCount;

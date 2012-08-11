@@ -1,0 +1,16 @@
+Komodex Module Drivers - Changelog
+http://komodex.com
+
+v1.0.0
+----------
+- Initial release.
+
+v1.0.1
+----------
+- Fixed an issue with the SetValue(string) method of SevenSegmentDisplay.
+
+v1.0.2
+----------
+- The SetBrightness method of SevenSegmentDisplay now accepts a double rather than a float.
+- Added Underscore to the Digit enumeration. SetValue(string) now parses the '_' character.
+- Added ClearValue method to SevenSegmentDisplay. This method clears the displayed value.

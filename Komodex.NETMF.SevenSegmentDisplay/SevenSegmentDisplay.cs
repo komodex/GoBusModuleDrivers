@@ -300,7 +300,11 @@ namespace Komodex.NETMF
 
             if (mode == TimeSpanDisplayMode.Automatic)
             {
-                if (value.Hours > 0)
+                // Automatically determine whether to show the TimeSpan value as MM:SS or HH:MM.
+                // If the value is >= 1 hour or <= -1 hour, display as HH:MM.
+                // If the value is negative we can only display up to -9:59, so automatically switch to HH:MM when minutes are <= -10.
+                // Otherwise, display the value as MM:SS.
+                if (value.Hours != 0 || value.Minutes <= -10)
                     mode = TimeSpanDisplayMode.HourMinute;
                 else
                     mode = TimeSpanDisplayMode.MinuteSecond;

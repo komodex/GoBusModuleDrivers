@@ -14,3 +14,7 @@ v1.0.2
 - The SetBrightness method of SevenSegmentDisplay now accepts a double rather than a float.
 - Added Underscore to the Digit enumeration. SetValue(string) now parses the '_' character.
 - Added ClearValue method to SevenSegmentDisplay. This method clears the displayed value.
+
+v1.0.3
+----------
+- Fixed some issues with negative TimeSpan values in SevenSegmentDisplay.

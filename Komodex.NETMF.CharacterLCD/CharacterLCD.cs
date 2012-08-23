@@ -82,6 +82,9 @@ namespace Komodex.NETMF
             // IRQ configuration
             _irqPort = new InterruptPort(socketGpioPin, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
             _irqPort.OnInterrupt += new NativeEventHandler(_irqPort_OnInterrupt);
+
+            // Default backlight color
+            UpdateColor();
         }
 
         #endregion

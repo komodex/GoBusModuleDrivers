@@ -39,6 +39,7 @@ namespace Komodex.NETMF
         private const byte CMD_COLOR = 0x01;
         private const byte CMD_RAW = 0x02;
         private const byte CMD_LINE = 0x03;
+        private const byte CMD_CUSTOMCHAR = 0x04;
 
         // Brightness and color
         private byte _red = 255;
@@ -389,6 +390,96 @@ namespace Komodex.NETMF
                     {
                         char[] readChars = Encoding.UTF8.GetChars(_readFrameBuffer, 3, 16);
                         value = new string(readChars);
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        #endregion
+
+        #region Custom Character Methods
+
+        public void SetCustomCharacter(LCDCustomCharacter character, params byte[] values)
+        {
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _writeRetryCount;
+            bool success = false;
+
+            int valueCount = values.Length;
+            if (valueCount > 8)
+                valueCount = 8;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_CUSTOMCHAR;
+                _writeFrameBuffer[2] = character.Index;
+                for (int i = 0; i < valueCount; i++)
+                    _writeFrameBuffer[3 + i] = values[i];
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Verify the data
+                byte[] verifyValues;
+                if (GetCustomCharacter(character, out verifyValues))
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (values[i] == verifyValues[i])
+                            success = true;
+                        else
+                        {
+                            success = false;
+                            break;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        private bool GetCustomCharacter(LCDCustomCharacter character, out byte[] values)
+        {
+            values = null;
+
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_CUSTOMCHAR;
+                _writeFrameBuffer[2] = character.Index;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[1] == (CMD_READ | CMD_CUSTOMCHAR) && _readFrameBuffer[2] == character.Index)
+                    {
+                        values = new byte[8];
+                        for (int i = 0; i < 8; i++)
+                            values[i] = _readFrameBuffer[3 + i];
                         success = true;
                     }
                 }

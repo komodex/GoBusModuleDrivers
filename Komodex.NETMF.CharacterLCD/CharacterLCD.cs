@@ -409,6 +409,10 @@ namespace Komodex.NETMF
             int retry = _writeRetryCount;
             bool success = false;
 
+            byte[] charValues = new byte[8];
+            for (int i = 0; i < values.Length && i < charValues.Length; i++)
+                charValues[i] = values[i];
+
             int valueCount = values.Length;
             if (valueCount > 8)
                 valueCount = 8;
@@ -419,8 +423,8 @@ namespace Komodex.NETMF
                 _writeFrameBuffer[0] = 0x80;
                 _writeFrameBuffer[1] = CMD_WRITE | CMD_CUSTOMCHAR;
                 _writeFrameBuffer[2] = character.Index;
-                for (int i = 0; i < valueCount; i++)
-                    _writeFrameBuffer[3 + i] = values[i];
+                for (int i = 0; i < 8; i++)
+                    _writeFrameBuffer[3 + i] = charValues[i];
                 CalculateCRC();
 
                 // Send the message
@@ -432,7 +436,7 @@ namespace Komodex.NETMF
                 {
                     for (int i = 0; i < 8; i++)
                     {
-                        if (values[i] == verifyValues[i])
+                        if (charValues[i] == verifyValues[i])
                             success = true;
                         else
                         {

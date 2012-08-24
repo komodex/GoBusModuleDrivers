@@ -37,6 +37,7 @@ namespace Komodex.NETMF
         private const byte CMD_WRITE = (1 << 7);
 
         private const byte CMD_COLOR = 0x01;
+        private const byte CMD_RAW = 0x02;
         private const byte CMD_LINE1 = 0x11;
         private const byte CMD_LINE2 = 0x12;
 
@@ -203,6 +204,99 @@ namespace Komodex.NETMF
                         red = _readFrameBuffer[3];
                         green = _readFrameBuffer[4];
                         blue = _readFrameBuffer[5];
+                        success = true;
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        #endregion
+
+        #region Raw Commands/Data
+
+        public void WriteCommand(byte value)
+        {
+            WriteRaw(false, value);
+        }
+
+        public void WriteData(byte value)
+        {
+            WriteRaw(true, value);
+        }
+
+        private static byte _rawMessageID = 0;
+
+        private void WriteRaw(bool data, byte value)
+        {
+            ClearSPIWriteFrameBuffer();
+
+            byte messageID = _rawMessageID++;
+            byte type = (byte)((data) ? 0x01 : 0x00);
+
+            int retry = _writeRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_WRITE | CMD_RAW;
+                _writeFrameBuffer[2] = messageID;
+                _writeFrameBuffer[3] = type;
+                _writeFrameBuffer[4] = value;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Verify the data
+                byte verifyID, verifyType, verifyValue;
+                if (GetRaw(out verifyID, out verifyType, out verifyValue))
+                {
+                    if (messageID == verifyID && type == verifyType && value == verifyValue)
+                        success = true;
+                }
+            }
+        }
+
+        private bool GetRaw(out byte messageID, out byte type, out byte value)
+        {
+            messageID = 0;
+            type = 0;
+            value = 0;
+
+            ClearSPIWriteFrameBuffer();
+
+            int retry = _readRetryCount;
+            bool success = false;
+
+            while (!success && (retry-- > 0))
+            {
+                // Set up the message
+                _writeFrameBuffer[0] = 0x80;
+                _writeFrameBuffer[1] = CMD_READ | CMD_RAW;
+                CalculateCRC();
+
+                // Send the message
+                _spi.Write(_writeFrameBuffer);
+
+                // Wait for a response
+                if (_irqPortSignal.WaitOne(3, false))
+                {
+                    // Request data from the module
+                    ClearSPIWriteFrameBuffer();
+                    _writeFrameBuffer[0] = 0x80;
+                    CalculateCRC();
+                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+
+                    // Read the data
+                    if (_readFrameBuffer[2] == (CMD_READ | CMD_RAW))
+                    {
+                        messageID = _readFrameBuffer[3];
+                        type = _readFrameBuffer[4];
+                        value = _readFrameBuffer[5];
                         success = true;
                     }
                 }

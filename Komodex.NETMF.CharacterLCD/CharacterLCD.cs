@@ -309,26 +309,43 @@ namespace Komodex.NETMF
 
         #region Display SetLine Methods
 
-        public void SetLine1(string value)
+        public void SetLine1(string value, LineAlignment alignment = LineAlignment.Left)
         {
-            SetLine(1, value);
+            SetLine(1, value, alignment);
         }
 
-        public void SetLine2(string value)
+        public void SetLine2(string value, LineAlignment alignment = LineAlignment.Left)
         {
-            SetLine(2, value);
+            SetLine(2, value, alignment);
         }
 
-        public void SetLine(int line, string value)
+        public void SetLine(int line, string value, LineAlignment alignment = LineAlignment.Left)
         {
             ClearSPIWriteFrameBuffer();
 
             int retry = _writeRetryCount;
             bool success = false;
 
-            // Add spaces and truncate
-            value += new string(' ', 16);
-            value = value.Substring(0, 16);
+            // Add spaces and truncate if necessary
+            if (value.Length > 16)
+                value = value.Substring(0, 16);
+
+            switch (alignment)
+            {
+                case LineAlignment.Left:
+                    // Do nothing
+                    break;
+                case LineAlignment.Center:
+                    value = new string(' ', (16 - value.Length) / 2) + value;
+                    break;
+                case LineAlignment.Right:
+                    value = new string(' ', (16 - value.Length)) + value;
+                    break;
+            }
+
+            if (value.Length < 16)
+                value += new string(' ', (16 - value.Length));
+
             // Get bytes
             byte[] lineBytes = Encoding.UTF8.GetBytes(value);
 
@@ -338,7 +355,7 @@ namespace Komodex.NETMF
                 _writeFrameBuffer[0] = 0x80;
                 _writeFrameBuffer[1] = CMD_WRITE | CMD_LINE;
                 _writeFrameBuffer[2] = (byte)line;
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 16 && i < lineBytes.Length; i++)
                     _writeFrameBuffer[i + 3] = lineBytes[i];
                 CalculateCRC();
 

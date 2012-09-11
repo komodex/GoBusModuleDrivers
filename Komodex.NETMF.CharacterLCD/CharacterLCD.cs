@@ -16,9 +16,13 @@ namespace Komodex.NETMF
     {
         // Module parameters
         protected readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0xD9, 0x0E, 0x6C, 0x5F, 0xE6, 0x54, 0x49, 0xB1, 0xAD, 0x9F, 0xEC, 0x61, 0x6C, 0xCB, 0xF7 });
-        private const int _frameLength = 20;
+        private const int _frameLength = 24;
         private const int _writeRetryCount = 36;
         private const int _readRetryCount = 4;
+
+        // LCD parameters
+        private readonly int _cols;
+        private readonly int _rows;
 
         // SPI interface
         private SPI _spi;
@@ -49,12 +53,15 @@ namespace Komodex.NETMF
 
         #region Constructors and Initialization
 
-        public CharacterLCD()
+        public CharacterLCD(int cols = 16, int rows = 2)
         {
             // Look for a valid socket
             var compatibleSockets = GetSocketsByUniqueId(_moduleGuid);
             if (compatibleSockets.Length == 0)
                 throw new Exception(); // TODO: Replace with a more specific exception
+
+            _cols = cols;
+            _rows = rows;
 
             Initialize(compatibleSockets[0]);
         }
@@ -327,8 +334,8 @@ namespace Komodex.NETMF
             bool success = false;
 
             // Add spaces and truncate if necessary
-            if (value.Length > 16)
-                value = value.Substring(0, 16);
+            if (value.Length > _cols)
+                value = value.Substring(0, _cols);
 
             switch (alignment)
             {
@@ -336,15 +343,15 @@ namespace Komodex.NETMF
                     // Do nothing
                     break;
                 case LineAlignment.Center:
-                    value = new string(' ', (16 - value.Length) / 2) + value;
+                    value = new string(' ', (_cols - value.Length) / 2) + value;
                     break;
                 case LineAlignment.Right:
-                    value = new string(' ', (16 - value.Length)) + value;
+                    value = new string(' ', (_cols - value.Length)) + value;
                     break;
             }
 
-            if (value.Length < 16)
-                value += new string(' ', (16 - value.Length));
+            if (value.Length < _cols)
+                value += new string(' ', (_cols - value.Length));
 
             // Get bytes
             byte[] lineBytes = Encoding.UTF8.GetBytes(value);
@@ -355,7 +362,7 @@ namespace Komodex.NETMF
                 _writeFrameBuffer[0] = 0x80;
                 _writeFrameBuffer[1] = CMD_WRITE | CMD_LINE;
                 _writeFrameBuffer[2] = (byte)line;
-                for (int i = 0; i < 16 && i < lineBytes.Length; i++)
+                for (int i = 0; i < 20 && i < lineBytes.Length; i++)
                     _writeFrameBuffer[i + 3] = lineBytes[i];
                 CalculateCRC();
 
@@ -405,7 +412,7 @@ namespace Komodex.NETMF
                     // Read the data
                     if (_readFrameBuffer[1] == (CMD_READ | CMD_LINE) && _readFrameBuffer[2] == line)
                     {
-                        char[] readChars = Encoding.UTF8.GetChars(_readFrameBuffer, 3, 16);
+                        char[] readChars = Encoding.UTF8.GetChars(_readFrameBuffer, 3, 20);
                         value = new string(readChars);
                         success = true;
                     }

@@ -21,6 +21,8 @@ namespace Komodex.NETMF
         private const int _readRetryCount = 4;
 
         // LCD parameters
+        private const int DefaultColumnCount = 16;
+        private const int DefaultRowCount = 2;
         private readonly int _cols;
         private readonly int _rows;
 
@@ -53,7 +55,15 @@ namespace Komodex.NETMF
 
         #region Constructors and Initialization
 
-        public CharacterLCD(int cols = 16, int rows = 2)
+        public CharacterLCD()
+            : this(DefaultColumnCount, DefaultRowCount)
+        { }
+
+        public CharacterLCD(GoSocket socket)
+            : this(socket, DefaultColumnCount, DefaultRowCount)
+        { }
+
+        public CharacterLCD(int cols, int rows)
         {
             // Look for a valid socket
             var compatibleSockets = GetSocketsByUniqueId(_moduleGuid);
@@ -66,8 +76,11 @@ namespace Komodex.NETMF
             Initialize(compatibleSockets[0]);
         }
 
-        public CharacterLCD(GoSocket socket)
+        public CharacterLCD(GoSocket socket, int cols, int rows)
         {
+            _cols = cols;
+            _rows = rows;
+
             Initialize(socket);
         }
 

@@ -11,9 +11,15 @@ using Komodex.NETMF.Common;
 
 namespace Komodex.NETMF
 {
+    /// <summary>
+    /// Module driver for the Komodex Labs Seven Segment Display module.
+    /// </summary>
     public class SevenSegmentDisplay : GoModule
     {
         // Module parameters
+        /// <summary>
+        /// Unique GUID for this module.
+        /// </summary>
         protected readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0x3E, 0x42, 0x53, 0xAC, 0x60, 0x1C, 0x4B, 0x89, 0x83, 0xE7, 0x75, 0xD9, 0x65, 0x3E, 0xE0 });
         private const int _frameLength = 18;
         private const int _writeRetryCount = 36;
@@ -42,6 +48,9 @@ namespace Komodex.NETMF
 
         #region Constructors and Initialization
 
+        /// <summary>
+        /// Initializes a SevenSegmentDisplay connected to an automatically-detected socket.
+        /// </summary>
         public SevenSegmentDisplay()
         {
             // Look for a valid socket
@@ -52,6 +61,10 @@ namespace Komodex.NETMF
             Initialize(compatibleSockets[0]);
         }
 
+        /// <summary>
+        /// Initializes a SevenSegmentDisplay connected to the specified GoSocket.
+        /// </summary>
+        /// <param name="socket">The GoSocket the display is connected to.</param>
         public SevenSegmentDisplay(GoSocket socket)
         {
             Initialize(socket);
@@ -82,6 +95,9 @@ namespace Komodex.NETMF
 
         #region Resource Management
 
+        /// <summary>
+        /// Dispose
+        /// </summary>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -123,6 +139,11 @@ namespace Komodex.NETMF
 
         #region SetValue Methods
 
+        /// <summary>
+        /// Sets the value on the display to the specified number.
+        /// </summary>
+        /// <param name="value">The int to be displayed. Minimum: -999. Maximum: 9999.</param>
+        /// <param name="leadingZeros">true to display leading zeros; otherwise, false.</param>
         public void SetValue(int value, bool leadingZeros = false)
         {
             if (value > 9999 || value < -999)
@@ -144,6 +165,13 @@ namespace Komodex.NETMF
             SetValue(d1, d2, d3, d4);
         }
 
+
+        /// <summary>
+        /// Sets the value on the display to the specified number.
+        /// </summary>
+        /// <param name="value">The double to be displayed. Minimum/maximum values depend on the number of decimal places to be displayed.</param>
+        /// <param name="decimalPlaces">The number of decimal places to be displayed. Minimum: 0. Maximum: 3.</param>
+        /// <param name="leadingZeros">true to display leading zeros; otherwise, false.</param>
         public void SetValue(double value, int decimalPlaces, bool leadingZeros = false)
         {
             if (decimalPlaces > 3 || decimalPlaces < 0)
@@ -207,6 +235,13 @@ namespace Komodex.NETMF
             SetValue(d1, d2, d3, d4);
         }
 
+        /// <summary>
+        /// Sets the value on the display with four individual numbers.
+        /// </summary>
+        /// <param name="d1">The first int. Minimum: 0. Maximum: 9.</param>
+        /// <param name="d2">The second int. Minimum: 0. Maximum: 9.</param>
+        /// <param name="d3">The third int. Minimum: 0. Maximum: 9.</param>
+        /// <param name="d4">The fourth int. Minimum: 0. Maximum: 9.</param>
         public void SetValue(int d1, int d2, int d3, int d4)
         {
             if (d1 < -1 || d1 > 9)
@@ -221,6 +256,10 @@ namespace Komodex.NETMF
             SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
         }
 
+        /// <summary>
+        /// Sets the value on the display to the specified string.
+        /// </summary>
+        /// <param name="value">The string to be displayed. Up to four hexadecimal characters can be displayed. Decimal points are appended to the previous digit.</param>
         public void SetValue(string value)
         {
             char[] charValue = value.ToCharArray();
@@ -252,6 +291,12 @@ namespace Komodex.NETMF
             SetValue(digits[0], digits[1], digits[2], digits[3]);
         }
 
+        /// <summary>
+        /// Sets the value on the display to the specified DateTime.
+        /// </summary>
+        /// <param name="value">The DateTime to be displayed.</param>
+        /// <param name="show12HourTime">true to display the time in 12-hour mode; otherwise, false.</param>
+        /// <param name="showPMIndicator">When displaying the time in 12-hour mode, true to use the last digit's decimal point as a PM indicator; false to disable PM indication. This parameter has no effect when displaying time in 24-hour mode.</param>
         public void SetValue(DateTime value, bool show12HourTime = true, bool showPMIndicator = true)
         {
             int displayValue = 0;
@@ -294,6 +339,11 @@ namespace Komodex.NETMF
             SetValue(d1, d2, d3, d4);
         }
 
+        /// <summary>
+        /// Sets the value on the display to the specified TimeSpan.
+        /// </summary>
+        /// <param name="value">The TimeSpan to be displayed.</param>
+        /// <param name="mode">The mode used to display the TimeSpan value.</param>
         public void SetValue(TimeSpan value, TimeSpanDisplayMode mode = TimeSpanDisplayMode.Automatic)
         {
             int displayValue = 0;
@@ -323,11 +373,21 @@ namespace Komodex.NETMF
             SetValue(displayValue, true);
         }
 
+        /// <summary>
+        /// Clears the value on the display, leaving all digits blank.
+        /// </summary>
         public void ClearValue()
         {
             SetValue(Digit.Blank, Digit.Blank, Digit.Blank, Digit.Blank);
         }
 
+        /// <summary>
+        /// Sets the value on the display with four individual Digits.
+        /// </summary>
+        /// <param name="d1">The first Digit.</param>
+        /// <param name="d2">The second Digit.</param>
+        /// <param name="d3">The third Digit.</param>
+        /// <param name="d4">The fourth Digit.</param>
         public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
         {
             ClearSPIWriteFrameBuffer();
@@ -360,6 +420,7 @@ namespace Komodex.NETMF
             }
         }
 
+        // Retrieves the current value from the display (used to verify that the display received the intended value).
         private bool GetValue(out Digit d1, out Digit d2, out Digit d3, out Digit d4)
         {
             d1 = (Digit)(-1);
@@ -410,6 +471,10 @@ namespace Komodex.NETMF
 
         #region Display Brightness Methods
 
+        /// <summary>
+        /// Sets the display's brightness level.
+        /// </summary>
+        /// <param name="value">The decimal value to set the display's brightness level. Maximum: 1.0 (full brightness). Minimum: 0.0 (display off).</param>
         public void SetBrightness(double value)
         {
             if (value < 0 || value > 1)
@@ -444,6 +509,7 @@ namespace Komodex.NETMF
             }
         }
 
+        // Retrieves the current brightness level from the display (used to verify that the display received the intended value).
         private bool GetBrightness(out int brightness)
         {
             brightness = -1;
@@ -489,6 +555,10 @@ namespace Komodex.NETMF
 
         #region Display Colon Methods
 
+        /// <summary>
+        /// Sets whether the colon should be displayed.
+        /// </summary>
+        /// <param name="value">true to display the colon; otherwise, false.</param>
         public void SetColon(bool value)
         {
             ClearSPIWriteFrameBuffer();
@@ -517,6 +587,7 @@ namespace Komodex.NETMF
             }
         }
 
+        // Retrieves the current colon state from the display (used to verify that the display received the intended value).
         private bool GetColon(out bool value)
         {
             value = false;
@@ -565,6 +636,10 @@ namespace Komodex.NETMF
 
         #region Display Apostrophe Methods
 
+        /// <summary>
+        /// Sets whether the apostrophe (in the top-right corner) should be displayed.
+        /// </summary>
+        /// <param name="value">true to display the apostrophe; otherwise, false.</param>
         public void SetApostrophe(bool value)
         {
             ClearSPIWriteFrameBuffer();
@@ -593,6 +668,7 @@ namespace Komodex.NETMF
             }
         }
 
+        // Retrieves the current apostrophe state from the display (used to verify that the display received the intended value).
         private bool GetApostrophe(out bool value)
         {
             value = false;
@@ -641,6 +717,12 @@ namespace Komodex.NETMF
 
         #region Utility Methods
 
+        /// <summary>
+        /// Converts an int to a Digit.
+        /// Range is 0-10, or -1 to return a blank Digit.
+        /// </summary>
+        /// <param name="value">The int value to convert.</param>
+        /// <returns>The converted Digit value.</returns>
         public static Digit GetDigit(int value)
         {
             switch (value)
@@ -672,6 +754,12 @@ namespace Komodex.NETMF
             }
         }
 
+        /// <summary>
+        /// Converts a char to a digit (case-insensitive).
+        /// Allowed values include '-', '_', '.', all numbers '0' through '9', and all hexadecimal digits 'A' through 'F'.
+        /// </summary>
+        /// <param name="value">The char value to convert.</param>
+        /// <returns>The converted Digit value.</returns>
         public static Digit GetDigit(char value)
         {
             value = value.ToUpper();
@@ -721,6 +809,11 @@ namespace Komodex.NETMF
             return Digit.Blank;
         }
 
+        /// <summary>
+        /// Converts a Digit to an int value.
+        /// </summary>
+        /// <param name="value">The Digit value to convert.</param>
+        /// <returns>The converted int value.</returns>
         public static int GetInt(Digit value)
         {
             switch (value)
@@ -750,6 +843,9 @@ namespace Komodex.NETMF
             }
         }
 
+        /// <summary>
+        /// Converts an integer value to four individual Digits.
+        /// </summary>
         protected static void IntToDigits(int value, out Digit d1, out Digit d2, out Digit d3, out Digit d4)
         {
             d4 = GetDigit(value % 10);
@@ -761,6 +857,11 @@ namespace Komodex.NETMF
             d1 = GetDigit(value % 10);
         }
 
+        /// <summary>
+        /// Clears leading zeros from the specified digit group.
+        /// For example, "0012" becomes "12", with the first and second digits becoming blank.
+        /// The fourth digit is always preserved, so "0000" will become "0".
+        /// </summary>
         protected static void ClearLeadingZeros(ref Digit d1, ref Digit d2, ref Digit d3, ref Digit d4)
         {
             if (d1 == Digit.D0)

@@ -28,6 +28,7 @@
     SetOutPath "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}"
     File "${SourceDirectory}\${AssemblyName}.dll"
     File "${SourceDirectory}\${AssemblyName}.pdb"
+    File "${SourceDirectory}\${AssemblyName}.xml"
 
     SetOutPath "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\be"
     File "${SourceDirectory}\be\${AssemblyName}.dll"
@@ -47,6 +48,7 @@
     
     Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\${AssemblyName}.dll"
     Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\${AssemblyName}.pdb"
+    Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\${AssemblyName}.xml"
     Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\be\${AssemblyName}.dll"
     Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\be\${AssemblyName}.pdb"
     Delete "$INSTDIR\${AssemblySubdirectory}\${NETMFVersion}\be\${AssemblyName}.pdbx"

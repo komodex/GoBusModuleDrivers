@@ -14,6 +14,13 @@ namespace Komodex.NETMF
     {
         #region Temperature Display
 
+        /// <summary>
+        /// Sets the value on the display to the specified temperature value.
+        /// </summary>
+        /// <param name="display">The SevenSegmentDisplay instance to be updated.</param>
+        /// <param name="temperature">The temperature to be displayed.</param>
+        /// <param name="unit">The temperature unit to display (usually Digit.F or Digit.C).</param>
+        /// <param name="showDecimal">true to display the temperature with a decimal point (e.g., "98.6"); otherwise, false (e.g., "98").</param>
         public static void SetTemperatureDisplay(this SevenSegmentDisplay display, double temperature, Digit unit, bool showDecimal = true)
         {
             // Check input

@@ -102,7 +102,7 @@
 
   ;Show installation details
   ShowInstDetails show
-  ShowUnInstDetails show
+  ShowUninstDetails show
 
 ;--------------------------------
 ; Interface Settings

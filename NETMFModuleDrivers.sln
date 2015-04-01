@@ -1,6 +1,6 @@
 
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2013
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Komodex.NETMF.ModuleTestApp", "Komodex.NETMF.ModuleTestApp\Komodex.NETMF.ModuleTestApp.csproj", "{C1F5D6CE-5355-4096-AA86-147221FFA62A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Komodex.NETMF.SevenSegmentDisplay", "Komodex.NETMF.SevenSegmentDisplay\Komodex.NETMF.SevenSegmentDisplay.csproj", "{2DA138D3-D0E3-4184-AED2-31123A37B689}"

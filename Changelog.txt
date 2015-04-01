@@ -18,3 +18,7 @@ v1.0.2
 v1.0.3
 ----------
 - Fixed some issues with negative TimeSpan values in SevenSegmentDisplay.
+
+v1.0.4
+----------
+- Added XML documentation for all public members in the Seven Segment Display library.

@@ -22,7 +22,7 @@
   !define FullProductName "${ShortCompanyName} ${ProductName}"
   
   ;Version number must be in X.X.X.X format
-  !define Version "1.0.3.0"
+  !define Version "1.0.4.0"
 
 ;--------------------------------
 ; EULA (Optional)

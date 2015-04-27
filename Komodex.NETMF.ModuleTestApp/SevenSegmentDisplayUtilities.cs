@@ -21,7 +21,8 @@ namespace Komodex.NETMF
         /// <param name="temperature">The temperature to be displayed.</param>
         /// <param name="unit">The temperature unit to display (usually Digit.F or Digit.C).</param>
         /// <param name="showDecimal">true to display the temperature with a decimal point (e.g., "98.6"); otherwise, false (e.g., "98").</param>
-        public static void SetTemperatureDisplay(this SevenSegmentDisplay display, double temperature, Digit unit, bool showDecimal = true)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public static bool SetTemperatureDisplay(this SevenSegmentDisplay display, double temperature, Digit unit, bool showDecimal = true)
         {
             // Check input
             if (temperature > 999 || temperature < -99)
@@ -66,12 +67,19 @@ namespace Komodex.NETMF
                     d2 = Digit.Blank;
             }
 
+            bool success = true;
+
             // Send the value to the display
-            display.SetValue(d1, d2, d3, unit);
+            if (!display.SetValue(d1, d2, d3, unit))
+                success = false;
 
             // Turn the apostrophe on (so it looks like a degree symbol) and make sure the colon is turned off
-            display.SetApostrophe(true);
-            display.SetColon(false);
+            if (!display.SetApostrophe(true))
+                success = false;
+            if (!display.SetColon(false))
+                success = false;
+
+            return success;
         }
 
         #endregion

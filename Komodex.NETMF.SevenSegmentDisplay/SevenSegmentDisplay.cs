@@ -144,7 +144,8 @@ namespace Komodex.NETMF
         /// </summary>
         /// <param name="value">The int to be displayed. Minimum: -999. Maximum: 9999.</param>
         /// <param name="leadingZeros">true to display leading zeros; otherwise, false.</param>
-        public void SetValue(int value, bool leadingZeros = false)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(int value, bool leadingZeros = false)
         {
             if (value > 9999 || value < -999)
                 throw new ArgumentOutOfRangeException("value");
@@ -162,7 +163,7 @@ namespace Komodex.NETMF
             if (isNegative)
                 d1 = Digit.Dash;
 
-            SetValue(d1, d2, d3, d4);
+            return SetValue(d1, d2, d3, d4);
         }
 
 
@@ -172,7 +173,8 @@ namespace Komodex.NETMF
         /// <param name="value">The double to be displayed. Minimum/maximum values depend on the number of decimal places to be displayed.</param>
         /// <param name="decimalPlaces">The number of decimal places to be displayed. Minimum: 0. Maximum: 3.</param>
         /// <param name="leadingZeros">true to display leading zeros; otherwise, false.</param>
-        public void SetValue(double value, int decimalPlaces, bool leadingZeros = false)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(double value, int decimalPlaces, bool leadingZeros = false)
         {
             if (decimalPlaces > 3 || decimalPlaces < 0)
                 throw new ArgumentOutOfRangeException("decimalPlaces");
@@ -232,7 +234,7 @@ namespace Komodex.NETMF
                     d1 = Digit.Dash;
             }
 
-            SetValue(d1, d2, d3, d4);
+            return SetValue(d1, d2, d3, d4);
         }
 
         /// <summary>
@@ -242,7 +244,8 @@ namespace Komodex.NETMF
         /// <param name="d2">The second int. Minimum: 0. Maximum: 9.</param>
         /// <param name="d3">The third int. Minimum: 0. Maximum: 9.</param>
         /// <param name="d4">The fourth int. Minimum: 0. Maximum: 9.</param>
-        public void SetValue(int d1, int d2, int d3, int d4)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(int d1, int d2, int d3, int d4)
         {
             if (d1 < -1 || d1 > 9)
                 throw new ArgumentOutOfRangeException("d1");
@@ -253,14 +256,15 @@ namespace Komodex.NETMF
             if (d4 < -1 || d4 > 9)
                 throw new ArgumentOutOfRangeException("d4");
 
-            SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
+            return SetValue(GetDigit(d1), GetDigit(d2), GetDigit(d3), GetDigit(d4));
         }
 
         /// <summary>
         /// Sets the value on the display to the specified string.
         /// </summary>
         /// <param name="value">The string to be displayed. Up to four hexadecimal characters can be displayed. Decimal points are appended to the previous digit.</param>
-        public void SetValue(string value)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(string value)
         {
             char[] charValue = value.ToCharArray();
 
@@ -288,7 +292,7 @@ namespace Komodex.NETMF
                 pos++;
             }
 
-            SetValue(digits[0], digits[1], digits[2], digits[3]);
+            return SetValue(digits[0], digits[1], digits[2], digits[3]);
         }
 
         /// <summary>
@@ -297,7 +301,8 @@ namespace Komodex.NETMF
         /// <param name="value">The DateTime to be displayed.</param>
         /// <param name="show12HourTime">true to display the time in 12-hour mode; otherwise, false.</param>
         /// <param name="showPMIndicator">When displaying the time in 12-hour mode, true to use the last digit's decimal point as a PM indicator; false to disable PM indication. This parameter has no effect when displaying time in 24-hour mode.</param>
-        public void SetValue(DateTime value, bool show12HourTime = true, bool showPMIndicator = true)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(DateTime value, bool show12HourTime = true, bool showPMIndicator = true)
         {
             int displayValue = 0;
             bool is_pm = false;
@@ -342,7 +347,7 @@ namespace Komodex.NETMF
                 d4 |= Digit.Decimal;
 
             // Send the value to the display
-            SetValue(d1, d2, d3, d4);
+            return SetValue(d1, d2, d3, d4);
         }
 
         /// <summary>
@@ -350,7 +355,8 @@ namespace Komodex.NETMF
         /// </summary>
         /// <param name="value">The TimeSpan to be displayed.</param>
         /// <param name="mode">The mode used to display the TimeSpan value.</param>
-        public void SetValue(TimeSpan value, TimeSpanDisplayMode mode = TimeSpanDisplayMode.Automatic)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(TimeSpan value, TimeSpanDisplayMode mode = TimeSpanDisplayMode.Automatic)
         {
             int displayValue = 0;
 
@@ -376,15 +382,16 @@ namespace Komodex.NETMF
                     break;
             }
 
-            SetValue(displayValue, true);
+            return SetValue(displayValue, true);
         }
 
         /// <summary>
         /// Clears the value on the display, leaving all digits blank.
         /// </summary>
-        public void ClearValue()
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool ClearValue()
         {
-            SetValue(Digit.Blank, Digit.Blank, Digit.Blank, Digit.Blank);
+            return SetValue(Digit.Blank, Digit.Blank, Digit.Blank, Digit.Blank);
         }
 
         /// <summary>
@@ -394,7 +401,8 @@ namespace Komodex.NETMF
         /// <param name="d2">The second Digit.</param>
         /// <param name="d3">The third Digit.</param>
         /// <param name="d4">The fourth Digit.</param>
-        public void SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetValue(Digit d1, Digit d2, Digit d3, Digit d4)
         {
             ClearSPIWriteFrameBuffer();
 
@@ -422,8 +430,9 @@ namespace Komodex.NETMF
                     if (d1 == verifyD1 && d2 == verifyD2 && d3 == verifyD3 && d4 == verifyD4)
                         success = true;
                 }
-
             }
+
+            return success;
         }
 
         // Retrieves the current value from the display (used to verify that the display received the intended value).
@@ -481,7 +490,8 @@ namespace Komodex.NETMF
         /// Sets the display's brightness level.
         /// </summary>
         /// <param name="value">The decimal value to set the display's brightness level. Maximum: 1.0 (full brightness). Minimum: 0.0 (display off).</param>
-        public void SetBrightness(double value)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetBrightness(double value)
         {
             if (value < 0 || value > 1)
                 throw new ArgumentOutOfRangeException("value");
@@ -513,6 +523,8 @@ namespace Komodex.NETMF
                         success = true;
                 }
             }
+
+            return success;
         }
 
         // Retrieves the current brightness level from the display (used to verify that the display received the intended value).
@@ -565,7 +577,8 @@ namespace Komodex.NETMF
         /// Sets whether the colon should be displayed.
         /// </summary>
         /// <param name="value">true to display the colon; otherwise, false.</param>
-        public void SetColon(bool value)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetColon(bool value)
         {
             ClearSPIWriteFrameBuffer();
 
@@ -591,6 +604,8 @@ namespace Komodex.NETMF
                         success = true;
                 }
             }
+
+            return success;
         }
 
         // Retrieves the current colon state from the display (used to verify that the display received the intended value).
@@ -646,7 +661,8 @@ namespace Komodex.NETMF
         /// Sets whether the apostrophe (in the top-right corner) should be displayed.
         /// </summary>
         /// <param name="value">true to display the apostrophe; otherwise, false.</param>
-        public void SetApostrophe(bool value)
+        /// <returns>true if the display was updated successfully; otherwise, false.</returns>
+        public bool SetApostrophe(bool value)
         {
             ClearSPIWriteFrameBuffer();
 
@@ -672,6 +688,8 @@ namespace Komodex.NETMF
                         success = true;
                 }
             }
+
+            return success;
         }
 
         // Retrieves the current apostrophe state from the display (used to verify that the display received the intended value).

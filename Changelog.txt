@@ -26,3 +26,4 @@ v1.0.4
 v1.0.5
 ----------
 - Fixed an issue with the SetValue(DateTime) method of SevenSegmentDisplay.
+- All SevenSegmentDisplay update methods now return true or false depending on whether the update completed successfully.

@@ -768,8 +768,6 @@ namespace Komodex.NETMF
         /// <returns>The converted Digit value.</returns>
         public static Digit GetDigit(char value)
         {
-            value = value.ToUpper();
-
             switch (value)
             {
                 case '0':
@@ -793,16 +791,22 @@ namespace Komodex.NETMF
                 case '9':
                     return Digit.D9;
                 case 'A':
+                case 'a':
                     return Digit.A;
                 case 'B':
+                case 'b':
                     return Digit.B;
                 case 'C':
+                case 'c':
                     return Digit.C;
                 case 'D':
+                case 'd':
                     return Digit.D;
                 case 'E':
+                case 'e':
                     return Digit.E;
                 case 'F':
+                case 'f':
                     return Digit.F;
                 case '-':
                     return Digit.Dash;

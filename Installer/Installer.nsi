@@ -18,7 +18,7 @@
   !define FullCompanyName "Komodex Systems LLC"
   !define ProductName "Module Drivers"
   !define InfoURL "http://komodex.com"
-  !define Copyright "Copyright (C) 2012 ${FullCompanyName}"
+  !define Copyright "Copyright (C) 2015 ${FullCompanyName}"
   !define FullProductName "${ShortCompanyName} ${ProductName}"
   
   ;Version number must be in X.X.X.X format

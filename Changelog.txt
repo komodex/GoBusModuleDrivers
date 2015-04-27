@@ -22,3 +22,7 @@ v1.0.3
 v1.0.4
 ----------
 - Added XML documentation for all public members in the Seven Segment Display library.
+
+v1.0.5
+----------
+- Fixed an issue with the SetValue(DateTime) method of SevenSegmentDisplay.

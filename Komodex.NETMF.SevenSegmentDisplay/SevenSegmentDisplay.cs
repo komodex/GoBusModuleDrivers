@@ -303,21 +303,27 @@ namespace Komodex.NETMF
             bool is_pm = false;
 
             // Get the hour value
+            var hour = value.Hour;
             if (show12HourTime)
             {
-                if (value.Hour == 0)
+                if (hour == 0)
                     displayValue = 1200;
-                else if (value.Hour < 12)
-                    displayValue = value.Hour * 100;
+                else if (hour < 12)
+                    displayValue = hour * 100;
+                else if (hour == 12)
+                {
+                    displayValue = 1200;
+                    is_pm = true;
+                }
                 else
                 {
-                    displayValue = (value.Hour - 12) * 100;
+                    displayValue = (hour - 12) * 100;
                     is_pm = true;
                 }
             }
             else
             {
-                displayValue = value.Hour * 100;
+                displayValue = hour * 100;
             }
 
             // Add the minutes

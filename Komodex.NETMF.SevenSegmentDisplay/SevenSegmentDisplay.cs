@@ -4,6 +4,7 @@ using GoBus;
 using Microsoft.SPOT.Hardware;
 using System.Threading;
 using Komodex.NETMF.Common;
+using System.ComponentModel;
 
 // Seven Segment Display Module Driver
 // Matt Isenhower, Komodex Systems LLC
@@ -16,25 +17,21 @@ namespace Komodex.NETMF
     /// </summary>
     public class SevenSegmentDisplay : GoModule
     {
+        private readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0x3E, 0x42, 0x53, 0xAC, 0x60, 0x1C, 0x4B, 0x89, 0x83, 0xE7, 0x75, 0xD9, 0x65, 0x3E, 0xE0 });
         // Module parameters
         /// <summary>
         /// Unique GUID for this module.
         /// </summary>
-        protected readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0x3E, 0x42, 0x53, 0xAC, 0x60, 0x1C, 0x4B, 0x89, 0x83, 0xE7, 0x75, 0xD9, 0x65, 0x3E, 0xE0 });
+        protected override Guid ModuleGuid { get { return _moduleGuid; } }
         private const int _frameLength = 18;
         private const int _writeRetryCount = 36;
         private const int _readRetryCount = 4;
-
-        // SPI interface
-        private SPI _spi;
-        private SPI.Configuration _spiConfig;
 
         // SPI data buffers
         private readonly byte[] _writeFrameBuffer = new byte[_frameLength];
         private readonly byte[] _readFrameBuffer = new byte[_frameLength];
 
         // IRQ management
-        private InterruptPort _irqPort;
         private readonly AutoResetEvent _irqPortSignal = new AutoResetEvent(false);
 
         // Message IDs
@@ -52,43 +49,35 @@ namespace Komodex.NETMF
         /// Initializes a SevenSegmentDisplay connected to an automatically-detected socket.
         /// </summary>
         public SevenSegmentDisplay()
+            : base()
         {
-            // Look for a valid socket
-            var compatibleSockets = GetSocketsByUniqueId(_moduleGuid);
-            if (compatibleSockets.Length == 0)
-                throw new Exception(); // TODO: Replace with a more specific exception
+        }
 
-            Initialize(compatibleSockets[0]);
+        /// <summary>
+        /// Initializes a SevenSegmentDisplay connected to the specified GoPort.
+        /// </summary>
+        /// <param name="port">The GoPort the display is connected to.</param>
+        public SevenSegmentDisplay(GoPort port)
+            : base(port)
+        {
         }
 
         /// <summary>
         /// Initializes a SevenSegmentDisplay connected to the specified GoSocket.
         /// </summary>
         /// <param name="socket">The GoSocket the display is connected to.</param>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public SevenSegmentDisplay(GoSocket socket)
+            : this((GoPort)socket)
         {
-            Initialize(socket);
         }
 
-        private void Initialize(GoSocket socket)
+        /// <summary>
+        /// Initializes the module after binding.
+        /// </summary>
+        protected override void Initialize()
         {
-            // Attempt to bind the socket
-            if (!BindSocket(socket, _moduleGuid))
-                throw new ArgumentException(); // TODO: Replace with a more specific exception
-
-            // Get socket resources
-            Cpu.Pin socketGpioPin;
-            SPI.SPI_module socketSpiModule;
-            Cpu.Pin socketSpiSlaveSelectPin;
-            socket.GetPhysicalResources(out socketGpioPin, out socketSpiModule, out socketSpiSlaveSelectPin);
-
-            // SPI configuration
-            _spiConfig = new SPI.Configuration(socketSpiSlaveSelectPin, false, 0, 0, false, false, 500, socketSpiModule);
-            _spi = new SPI(_spiConfig);
-
-            // IRQ configuration
-            _irqPort = new InterruptPort(socketGpioPin, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
-            _irqPort.OnInterrupt += new NativeEventHandler(_irqPort_OnInterrupt);
         }
 
         #endregion
@@ -103,7 +92,6 @@ namespace Komodex.NETMF
             if (disposing)
             {
                 // Clean up any managed code objects
-                _irqPort.Dispose();
             }
             // Clean up any unmanaged code objects
 
@@ -115,7 +103,10 @@ namespace Komodex.NETMF
 
         #region IRQ Port
 
-        private void _irqPort_OnInterrupt(uint data1, uint data2, DateTime time)
+        /// <summary>
+        /// Occurs when the interrupt line is asserted.
+        /// </summary>
+        protected override void OnInterrupt()
         {
             _irqPortSignal.Set();
         }
@@ -421,7 +412,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 Digit verifyD1, verifyD2, verifyD3, verifyD4;
@@ -456,7 +447,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -465,7 +456,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_DISPLAYVALUE))
@@ -513,7 +504,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 int verifyBrightness;
@@ -545,7 +536,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -554,7 +545,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_BRIGHTNESS))
@@ -594,7 +585,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 bool verifyColon;
@@ -626,7 +617,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -635,7 +626,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_COLON))
@@ -678,7 +669,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 bool verifyApostrophe;
@@ -710,7 +701,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -719,7 +710,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_APOSTROPHE))

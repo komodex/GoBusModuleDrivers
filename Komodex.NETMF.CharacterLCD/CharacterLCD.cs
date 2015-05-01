@@ -5,6 +5,7 @@ using Microsoft.SPOT.Hardware;
 using System.Threading;
 using Komodex.NETMF.Common;
 using System.Text;
+using System.ComponentModel;
 
 // Character LCD Module Driver
 // Matt Isenhower, Komodex Systems LLC
@@ -16,6 +17,7 @@ namespace Komodex.NETMF
     {
         // Module parameters
         protected readonly Guid _moduleGuid = new Guid(new byte[] { 0x80, 0xD9, 0x0E, 0x6C, 0x5F, 0xE6, 0x54, 0x49, 0xB1, 0xAD, 0x9F, 0xEC, 0x61, 0x6C, 0xCB, 0xF7 });
+        protected override Guid ModuleGuid { get { return _moduleGuid; } }
         private const int _frameLength = 24;
         private const int _writeRetryCount = 36;
         private const int _readRetryCount = 4;
@@ -26,16 +28,11 @@ namespace Komodex.NETMF
         private readonly int _cols;
         private readonly int _rows;
 
-        // SPI interface
-        private SPI _spi;
-        private SPI.Configuration _spiConfig;
-
         // SPI data buffers
         private readonly byte[] _writeFrameBuffer = new byte[_frameLength];
         private readonly byte[] _readFrameBuffer = new byte[_frameLength];
 
         // IRQ management
-        private InterruptPort _irqPort;
         private readonly AutoResetEvent _irqPortSignal = new AutoResetEvent(false);
 
         // Message IDs
@@ -59,51 +56,38 @@ namespace Komodex.NETMF
             : this(DefaultColumnCount, DefaultRowCount)
         { }
 
+        public CharacterLCD(GoPort port)
+            : base(port)
+        { }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public CharacterLCD(GoSocket socket)
-            : this(socket, DefaultColumnCount, DefaultRowCount)
+            : this((GoPort)socket)
         { }
 
         public CharacterLCD(int cols, int rows)
+            : base()
         {
-            // Look for a valid socket
-            var compatibleSockets = GetSocketsByUniqueId(_moduleGuid);
-            if (compatibleSockets.Length == 0)
-                throw new Exception(); // TODO: Replace with a more specific exception
-
             _cols = cols;
             _rows = rows;
-
-            Initialize(compatibleSockets[0]);
         }
 
+        public CharacterLCD(GoPort port, int cols, int rows)
+            :base(port)
+        {
+            _cols = cols;
+            _rows = rows;
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public CharacterLCD(GoSocket socket, int cols, int rows)
+            : this((GoPort)socket, cols, rows)
+        { }
+
+        protected override void Initialize()
         {
-            _cols = cols;
-            _rows = rows;
-
-            Initialize(socket);
-        }
-
-        private void Initialize(GoSocket socket)
-        {
-            // Attempt to bind the socket
-            if (!BindSocket(socket, _moduleGuid))
-                throw new ArgumentException(); // TODO: Replace with a more specific exception
-
-            // Get socket resources
-            Cpu.Pin socketGpioPin;
-            SPI.SPI_module socketSpiModule;
-            Cpu.Pin socketSpiSlaveSelectPin;
-            socket.GetPhysicalResources(out socketGpioPin, out socketSpiModule, out socketSpiSlaveSelectPin);
-
-            // SPI configuration
-            _spiConfig = new SPI.Configuration(socketSpiSlaveSelectPin, false, 0, 0, false, false, 500, socketSpiModule);
-            _spi = new SPI(_spiConfig);
-
-            // IRQ configuration
-            _irqPort = new InterruptPort(socketGpioPin, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
-            _irqPort.OnInterrupt += new NativeEventHandler(_irqPort_OnInterrupt);
-
             // Default backlight color
             UpdateColor();
         }
@@ -112,7 +96,7 @@ namespace Komodex.NETMF
 
         #region IRQ Port
 
-        private void _irqPort_OnInterrupt(uint data1, uint data2, DateTime time)
+        protected override void OnInterrupt()
         {
             _irqPortSignal.Set();
         }
@@ -175,7 +159,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 byte verifyRed, verifyGreen, verifyBlue;
@@ -207,7 +191,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -216,7 +200,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_COLOR))
@@ -269,7 +253,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 byte verifyID, verifyType, verifyValue;
@@ -300,7 +284,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -309,7 +293,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[2] == (CMD_READ | CMD_RAW))
@@ -380,7 +364,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 string verifyValue;
@@ -411,7 +395,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -420,7 +404,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[1] == (CMD_READ | CMD_LINE) && _readFrameBuffer[2] == line)
@@ -465,7 +449,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Verify the data
                 byte[] verifyValues;
@@ -504,7 +488,7 @@ namespace Komodex.NETMF
                 CalculateCRC();
 
                 // Send the message
-                _spi.Write(_writeFrameBuffer);
+                GoBusSpiWrite(_writeFrameBuffer);
 
                 // Wait for a response
                 if (_irqPortSignal.WaitOne(3, false))
@@ -513,7 +497,7 @@ namespace Komodex.NETMF
                     ClearSPIWriteFrameBuffer();
                     _writeFrameBuffer[0] = 0x80;
                     CalculateCRC();
-                    _spi.WriteRead(_writeFrameBuffer, _readFrameBuffer);
+                    GoBusSpiWriteRead(_writeFrameBuffer, _readFrameBuffer);
 
                     // Read the data
                     if (_readFrameBuffer[1] == (CMD_READ | CMD_CUSTOMCHAR) && _readFrameBuffer[2] == character.Index)

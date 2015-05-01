@@ -1,9 +1,9 @@
 using System;
 using Microsoft.SPOT;
-using NetduinoGo;
 using System.Threading;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoGo;
+using SecretLabs.NETMF.Hardware.Netduino;
+using NetduinoGo;
 
 // Seven Segment Display Module Demos
 // Matt Isenhower, Komodex Systems LLC
@@ -16,6 +16,8 @@ namespace Komodex.NETMF.ModuleTestApp
         private static SevenSegmentDisplay _display;
         private static RgbLed _statusLed;
         private static Potentiometer _potentiometer;
+        private static InterruptPort _onboardButton;
+        private static NetduinoGo.Button _buttonModule;
 
         private static bool _goToNextDemo;
 
@@ -24,8 +26,23 @@ namespace Komodex.NETMF.ModuleTestApp
             Debug.Print("Starting Seven Segment Display demo...");
 
             // Initialization
-            InterruptPort button = new InterruptPort(Pins.Button, true, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
-            button.OnInterrupt += new NativeEventHandler(button_OnInterrupt);
+            try
+            {
+                // Note: this currently throws an exception on the Netduino 3 Wi-Fi. May be fixed in a future firmware update.
+                // Also: setting glitchFilter to true seems to make it throw an uncatchable exception after a few seconds even though we caught this exception.
+                //_onboardButton = new InterruptPort(Pins.ONBOARD_BTN, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
+                //_onboardButton.OnInterrupt += new NativeEventHandler(button_OnInterrupt);
+            }
+            catch { }
+
+            // Button module
+            try
+            {
+                _buttonModule = new NetduinoGo.Button();
+                _buttonModule.ButtonPressed += button_ButtonPressed;
+                Debug.Print("Found Button Module");
+            }
+            catch { }
 
             // RGB LED
             try
@@ -237,6 +254,11 @@ namespace Komodex.NETMF.ModuleTestApp
         }
 
         static void button_OnInterrupt(uint data1, uint data2, DateTime time)
+        {
+            _goToNextDemo = true;
+        }
+
+        static void button_ButtonPressed(object sender, bool isPressed)
         {
             _goToNextDemo = true;
         }

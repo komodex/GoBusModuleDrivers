@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoGo;
 using NetduinoGo;
 
 // Module Test App

@@ -27,3 +27,7 @@ v1.0.5
 ----------
 - Fixed an issue with the SetValue(DateTime) method of SevenSegmentDisplay.
 - All SevenSegmentDisplay update methods now return true or false depending on whether the update completed successfully.
+
+v1.1.0
+----------
+- Updated to target NETMF v4.3 and the new GoBus library.

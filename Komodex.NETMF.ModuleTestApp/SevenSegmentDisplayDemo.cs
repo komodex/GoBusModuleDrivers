@@ -30,8 +30,8 @@ namespace Komodex.NETMF.ModuleTestApp
             {
                 // Note: this currently throws an exception on the Netduino 3 Wi-Fi. May be fixed in a future firmware update.
                 // Also: setting glitchFilter to true seems to make it throw an uncatchable exception after a few seconds even though we caught this exception.
-                //_onboardButton = new InterruptPort(Pins.ONBOARD_BTN, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
-                //_onboardButton.OnInterrupt += new NativeEventHandler(button_OnInterrupt);
+                _onboardButton = new InterruptPort(Pins.ONBOARD_BTN, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
+                _onboardButton.OnInterrupt += new NativeEventHandler(button_OnInterrupt);
             }
             catch { }
 

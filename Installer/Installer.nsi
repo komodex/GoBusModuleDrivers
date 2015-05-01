@@ -22,7 +22,7 @@
   !define FullProductName "${ShortCompanyName} ${ProductName}"
   
   ;Version number must be in X.X.X.X format
-  !define Version "1.0.5.0"
+  !define Version "1.1.0.0"
 
 ;--------------------------------
 ; EULA (Optional)
@@ -32,7 +32,7 @@
 
 ;--------------------------------
 ; .NET Micro Framework Version (in vX.Y format)
-  !define NETMFVersion "v4.2"
+  !define NETMFVersion "v4.3"
 
 ;--------------------------------
 ; Source Directory and Assemblies
